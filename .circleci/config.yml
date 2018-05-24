@@ -23,4 +23,5 @@ jobs:
           name: Apply terraform changes
           working_directory: infrastructure/
           command: |
+            terraform init
             terraform apply -auto-approve
