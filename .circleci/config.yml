@@ -2,16 +2,13 @@ version: 2
 jobs:
   build:
     docker:
-      - image: debian:stretch
+      - image: mesosphere/aws-cli
     steps:
       - checkout
       - run:
-          name: Install AWS cli
+          name: Check AWS cli is installed
           working_directory: /
-          command: |
-            apt-get -y -qq update
-            apt-get install -y python3-pip
-            pip install awscli --upgrade --user
+          command: aws --version
       - run:
           name: Install Terraform
           working_directory: /
