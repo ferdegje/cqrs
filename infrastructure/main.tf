@@ -12,6 +12,8 @@ terraform {
 
 module "fargate" {
   source = "./fargate"
+
+  name = "CQRS"
 }
 
 data "aws_availability_zones" "available" {}
@@ -23,7 +25,7 @@ locals {
 module "base_vpc" {
   source = "github.com/terraform-aws-modules/terraform-aws-vpc"
 
-  name = "base_vpc"
+  name = "CQRS"
   cidr = "${local.cidr}"
 
   azs             = ["${data.aws_availability_zones.available.names[0]}", "${data.aws_availability_zones.available.names[1]}"]
@@ -32,8 +34,4 @@ module "base_vpc" {
 
   enable_nat_gateway = false
   single_nat_gateway = false
-
-  tags {
-    name = "CQRS"
-  }
 }

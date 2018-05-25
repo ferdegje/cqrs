@@ -1,9 +1,9 @@
 resource "aws_ecs_cluster" "main" {
-  name = "tf-ecs-cluster"
+  name = "${var.name}"
 }
 
 resource "aws_ecs_task_definition" "webservice" {
-  family = "webservice"
+  family = "${var.name}-webservice"
 
   requires_compatibilities = ["FARGATE"]
   network_mode = "awsvpc"
