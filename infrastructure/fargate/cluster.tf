@@ -31,7 +31,7 @@ resource "aws_ecs_service" "webservice" {
 
   load_balancer {
     target_group_arn = "${aws_alb_target_group.app.id}"
-    container_name   = "app"
+    container_name   = "HelloWorld"
     container_port   = "${local.app_port}"
   }
 
