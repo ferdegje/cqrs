@@ -26,10 +26,12 @@ module "base_vpc" {
   name = "base_vpc"
   cidr = "${local.cidr}"
 
+  azs             = ["${data.aws_availability_zones.available.names[0]}", "${data.aws_availability_zones.available.names[1]}"]
+  private_subnets = []
   public_subnets  = ["${cidrsubnet(local.cidr, 4, 3)}", "${cidrsubnet(local.cidr, 4, 4)}"]
 
-  enable_nat_gateway = true
-  single_nat_gateway = true
+  enable_nat_gateway = false
+  single_nat_gateway = false
 
   tags {
     Name = "CQRS"
