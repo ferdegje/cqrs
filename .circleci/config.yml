@@ -2,19 +2,15 @@ version: 2
 jobs:
   build:
     docker:
-      - image: buildpack-deps:trusty
+      - image: mesosphere/aws-cli
         environment:
           ECR_REPOSITORY_NAME: cqrs
     steps:
       - checkout
       - run:
-          name: Install AWS cli
+          name: Check AWS cli is installed
           working_directory: /
-          command: |
-            apt-get update && apt-get -y upgrade
-            apt-get install -y python-pip python-dev
-            pip install awscli --upgrade --user
-            aws --version
+          command: aws --version
       - run:
           name: Build and push docker image
           working_directory: webservice/
