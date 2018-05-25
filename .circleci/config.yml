@@ -24,20 +24,20 @@ jobs:
               echo "ECR Repository $ECR_REPOSITORY_NAME already exists"
               aws ecr describe-repositories --region us-east-1 --repository-names $ECR_REPOSITORY_NAME > repoDescription.txt
             fi
-            ##### Store ECR url for further steps (would have used an ENV but can't be shared between run blocks)
-            cat repoDescription.txt | grep repositoryUri | awk '{print $2}' | tr -d '"' > ../ecr_repository_url
-            sed -i 's/image":.*/image": "`cat ../ecr_repository_url`:BN_$CIRCLE_BUILD_NUM",' ../infrastructure/fargate/task_definition.json
+            ##### Store ECR url for further steps
+            ECR_REPOSITORY_URL=`cat repoDescription.txt | grep repositoryUri | awk '{print $2}' | tr -d '"'`
+            sed -i "s/image\":.*/image\": \"$ECR_REPOSITORY_URL:BN_$CIRCLE_BUILD_NUM\",/" ../infrastructure/fargate/task_definition.json
             ##### Build the image
             apk --update add bash iptables ca-certificates e2fsprogs docker
             docker build -t $ECR_REPOSITORY_NAME .
             ##### Push the image to ECR
             eval $(aws ecr get-login --region us-east-1)
-            docker tag $ECR_REPOSITORY_NAME:latest `cat ../ecr_repository_url`:latest
-            docker push `cat ../ecr_repository_url`:latest
-            docker tag $ECR_REPOSITORY_NAME:latest `cat ../ecr_repository_url`:BN_$CIRCLE_BUILD_NUM
-            docker push `cat ../ecr_repository_url`:BN_$CIRCLE_BUILD_NUM
-            docker tag $ECR_REPOSITORY_NAME:latest `cat ../ecr_repository_url`:SHA1_$CIRCLE_SHA1
-            docker push `cat ../ecr_repository_url`:SHA1_$CIRCLE_SHA1
+            docker tag $ECR_REPOSITORY_NAME:latest $ECR_REPOSITORY_URL:latest
+            docker push $ECR_REPOSITORY_URL:latest
+            docker tag $ECR_REPOSITORY_NAME:latest $ECR_REPOSITORY_URL:BN_$CIRCLE_BUILD_NUM
+            docker push $ECR_REPOSITORY_URL:BN_$CIRCLE_BUILD_NUM
+            docker tag $ECR_REPOSITORY_NAME:latest $ECR_REPOSITORY_URL:SHA1_$CIRCLE_SHA1
+            docker push $ECR_REPOSITORY_URL:SHA1_$CIRCLE_SHA1
 
       - run:
           name: Install Terraform
