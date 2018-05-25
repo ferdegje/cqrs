@@ -33,8 +33,11 @@ jobs:
             eval $(aws ecr get-login --region us-east-1)
             docker tag $ECR_REPOSITORY_NAME:latest `cat ../ecr_repository_url`:latest
             docker push `cat ../ecr_repository_url`:latest
-            docker tag $ECR_REPOSITORY_NAME:latest `cat ../ecr_repository_url`:$CIRCLE_BUILD_NUM
-            docker push `cat ../ecr_repository_url`:$CIRCLE_BUILD_NUM
+            docker tag $ECR_REPOSITORY_NAME:latest `cat ../ecr_repository_url`:BN_$CIRCLE_BUILD_NUM
+            docker push `cat ../ecr_repository_url`:BN_$CIRCLE_BUILD_NUM
+            docker tag $ECR_REPOSITORY_NAME:latest `cat ../ecr_repository_url`:SHA1_$CIRCLE_SHA1
+            docker push `cat ../ecr_repository_url`:SHA1_$CIRCLE_SHA1
+
       - run:
           name: Install Terraform
           working_directory: /
