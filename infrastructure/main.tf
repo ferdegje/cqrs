@@ -14,6 +14,8 @@ module "fargate" {
   source = "./fargate"
 
   name = "CQRS"
+  aws_vpc = "${module.base_vpc.vpc_id}"
+  aws_subnets = "${module.base_vpc.public_subnets}"
 }
 
 data "aws_availability_zones" "available" {}
