@@ -34,6 +34,6 @@ module "base_vpc" {
   single_nat_gateway = false
 
   tags {
-    Name = "CQRS"
+    name = "CQRS"
   }
 }
