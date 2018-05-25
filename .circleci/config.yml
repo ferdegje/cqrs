@@ -21,6 +21,8 @@ jobs:
             else
               echo "ECR Repository $ECR_REPOSITORY_NAME already exists"
             fi
+            echo ecr describe-repositories --repository-name $ECR_REPOSITORY_NAME --region us-east-1 | grep "repositoryUri"
+            docker build -t $ECR_REPOSITORY_NAME .
       - run:
           name: Install Terraform
           working_directory: /
