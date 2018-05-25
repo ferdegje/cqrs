@@ -26,7 +26,7 @@ resource "aws_ecs_service" "webservice" {
 
   network_configuration {
     security_groups = ["${aws_security_group.ecs_tasks.id}"]
-    subnets         = "${var.aws_subnets}"
+    subnets         = ["${var.aws_subnets}"]
   }
 
   load_balancer {
