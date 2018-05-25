@@ -15,7 +15,7 @@ jobs:
           name: Build and push docker image
           working_directory: webservice/
           command: |
-            if [ `aws ecr describe-repositories --region us-east-1 --repository-names $ECR_REPOSITORY_NAME | grep "$ECR_REPOSITORY_NAME" | wc -l` != 0 ]; then
+            if [ `aws ecr describe-repositories --region us-east-1 --repository-names $ECR_REPOSITORY_NAME | grep "$ECR_REPOSITORY_NAME" | wc -l` == 0 ]; then
               echo "Creating ECR repository $ECR_REPOSITORY_NAME"
               aws ecr create-repository --repository-name $ECR_REPOSITORY_NAME --region us-east-1
             else
