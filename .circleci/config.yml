@@ -22,6 +22,7 @@ jobs:
             else
               echo "ECR Repository $ECR_REPOSITORY_NAME already exists"
             fi
+            apk --update add bash iptables ca-certificates e2fsprogs docker
             docker build -t $ECR_REPOSITORY_NAME .
       - run:
           name: Install Terraform
