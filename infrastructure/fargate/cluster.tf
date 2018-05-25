@@ -17,6 +17,29 @@ locals {
   app_port = 80
 }
 
+resource "aws_ecs_service" "webservice" {
+  name            = "${var.name}-webservice"
+  cluster         = "${aws_ecs_cluster.main.id}"
+  task_definition = "${aws_ecs_task_definition.webservice.arn}"
+  desired_count   = "1"
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    security_groups = ["${aws_security_group.ecs_tasks.id}"]
+    subnets         = "${var.aws_subnets}"
+  }
+
+  load_balancer {
+    target_group_arn = "${aws_alb_target_group.app.id}"
+    container_name   = "app"
+    container_port   = "${local.app_port}"
+  }
+
+  depends_on = [
+    "aws_alb_listener.front_end",
+  ]
+}
+
 resource "aws_alb_target_group" "app" {
   name        = "tf-ecs-chat"
   port        = "${local.app_port}"
