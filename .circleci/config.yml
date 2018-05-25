@@ -13,17 +13,28 @@ jobs:
           working_directory: /
           command: aws --version
       - run:
-          name: Build and push docker image
+          name: Build and push docker image to an ECR (Docker images repository)
           working_directory: webservice/
           command: |
+            ##### Ensure an ECR exists and retrieve its description
             if [ `aws ecr describe-repositories --region us-east-1 --repository-names $ECR_REPOSITORY_NAME | grep "$ECR_REPOSITORY_NAME" | wc -l` == 0 ]; then
               echo "Creating ECR repository $ECR_REPOSITORY_NAME"
-              aws ecr create-repository --repository-name $ECR_REPOSITORY_NAME --region us-east-1 >> djobidjoba
+              aws ecr create-repository --repository-name $ECR_REPOSITORY_NAME --region us-east-1 > repoDescription.txt
             else
               echo "ECR Repository $ECR_REPOSITORY_NAME already exists"
+              aws ecr describe-repositories --region us-east-1 --repository-names $ECR_REPOSITORY_NAME > repoDescription.txt
             fi
+            ##### Store ECR url for further steps (would have used an ENV but can't be shared between run blocks)
+            cat repoDescription.txt | grep repositoryUri | awk '{print $2}' | tr -d '"' > ../ecr_repository_url
+            ##### Build the image
             apk --update add bash iptables ca-certificates e2fsprogs docker
             docker build -t $ECR_REPOSITORY_NAME .
+            ##### Push the image to ECR
+            eval $(aws ecr get-login --region us-east-1)
+            docker tag $ECR_REPOSITORY_NAME:latest `cat ../ecr_repository_url`:latest
+            docker push `cat ../ecr_repository_url`:latest
+            docker tag $ECR_REPOSITORY_NAME:latest `cat ../ecr_repository_url`:$CIRCLE_BUILD_NUM
+            docker push `cat ../ecr_repository_url`:$CIRCLE_BUILD_NUM
       - run:
           name: Install Terraform
           working_directory: /
