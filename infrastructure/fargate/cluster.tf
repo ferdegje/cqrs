@@ -23,6 +23,17 @@ resource "aws_alb_target_group" "app" {
   protocol    = "HTTP"
   vpc_id      = "${var.aws_vpc}"
   target_type = "ip"
+
+  health_check {
+    interval            = 30
+    path                = "/"
+    port                = "${local.app_port}"
+    healthy_threshold   = 3
+    unhealthy_threshold = 3
+    timeout             = 5
+    protocol            = "HTTP"
+    matcher             = "200,202,302"
+  }
 }
 
 resource "aws_alb" "main" {
