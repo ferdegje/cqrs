@@ -10,6 +10,10 @@ jobs:
           working_directory: /
           command: aws --version
       - run:
+          name: Install git (required for Terraform modules retrieval)
+          working_directory: /
+          command: apk add git
+      - run:
           name: Install Terraform
           working_directory: /
           command: |
