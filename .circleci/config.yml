@@ -10,10 +10,6 @@ jobs:
           working_directory: /
           command: aws --version
       - run:
-          name: Install git (required for Terraform modules retrieval)
-          working_directory: /
-          command: apk add git
-      - run:
           name: Install Terraform
           working_directory: /
           command: |
@@ -23,6 +19,10 @@ jobs:
             unzip terraform_0.11.7_linux_amd64.zip
             mv terraform /usr/local/bin/
             terraform --version
+      - run:
+          name: Install git (required for Terraform modules retrieval)
+          working_directory: /
+          command: apk add git
       - run:
           name: Apply terraform changes
           working_directory: infrastructure/
