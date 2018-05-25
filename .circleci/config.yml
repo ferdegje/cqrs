@@ -10,7 +10,10 @@ jobs:
       - run:
           name: Install AWS cli
           working_directory: /
-          command: aws --version
+          command: |
+            apt-get update && apt-get -y upgrade
+            apt-get install -y python-pip
+            aws --version
       - run:
           name: Build and push docker image
           working_directory: webservice/
