@@ -26,7 +26,7 @@ jobs:
             fi
             ##### Store ECR url for further steps
             ECR_REPOSITORY_URL=`cat repoDescription.txt | grep repositoryUri | awk '{print $2}' | tr -d '"'`
-            sed -i "s~\"image\":.*~image\": \"$ECR_REPOSITORY_URL:BN_$CIRCLE_BUILD_NUM\",~" ../infrastructure/fargate/task_definition.json
+            sed -i "s~\"image\":.*~\"image\": \"$ECR_REPOSITORY_URL:BN_$CIRCLE_BUILD_NUM\",~" ../infrastructure/fargate/task_definition.json
             ##### Build the image
             apk --update add bash iptables ca-certificates e2fsprogs docker
             docker build -t $ECR_REPOSITORY_NAME .
