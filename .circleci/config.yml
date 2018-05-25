@@ -2,13 +2,13 @@ version: 2
 jobs:
   build:
     docker:
-      - image: mesosphere/aws-cli
+      - image: buildpack-deps:trusty
         environment:
           ECR_REPOSITORY_NAME: cqrs
     steps:
       - checkout
       - run:
-          name: Check AWS cli is installed
+          name: Install AWS cli
           working_directory: /
           command: aws --version
       - run:
