@@ -13,3 +13,32 @@ terraform {
 module "fargate" {
   source = "./fargate"
 }
+
+data "aws_availability_zones" "available" {}
+
+locals {
+  cidr = "10.0.0.0/16"
+}
+
+resource "random_shuffle" "az" {
+  input = ["${data.aws_availability_zones.available.names}"]
+  result_count = 2
+}
+
+module "base_vpc" {
+  source = "github.com/terraform-aws-modules/terraform-aws-vpc"
+
+  name = "base_vpc"
+  cidr = "${local.cidr}"
+
+  azs             = "${random_shuffle.az.result}"
+  private_subnets = ["${cidrsubnet(local.cidr, 4, 1)}", "${cidrsubnet(local.cidr, 4, 2)}"]
+  public_subnets  = ["${cidrsubnet(local.cidr, 4, 3)}", "${cidrsubnet(local.cidr, 4, 4)}"]
+
+  enable_nat_gateway = true
+  single_nat_gateway = true
+
+  tags {
+    Name = "CQRS"
+  }
+}
