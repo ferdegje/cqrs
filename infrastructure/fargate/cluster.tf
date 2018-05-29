@@ -14,7 +14,8 @@ resource "aws_ecs_task_definition" "webservice" {
 }
 
 locals {
-  app_port = 80
+  web_port = 80
+  app_port = 5000
 }
 
 resource "aws_ecs_service" "webservice" {
@@ -33,7 +34,7 @@ resource "aws_ecs_service" "webservice" {
   load_balancer {
     target_group_arn = "${aws_alb_target_group.app.id}"
     container_name   = "HelloWorld"
-    container_port   = "${local.app_port}"
+    container_port   = "${local.web_port}"
   }
 
   depends_on = [
