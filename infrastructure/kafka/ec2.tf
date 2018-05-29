@@ -32,7 +32,7 @@ resource "aws_security_group" "lb" {
   vpc_id      = "${var.aws_vpc}"
 
   ingress {
-    protocol    = "ssh"
+    protocol    = "tcp"
     from_port   = "22"
     to_port     = "22"
     cidr_blocks = ["0.0.0.0/0"]
