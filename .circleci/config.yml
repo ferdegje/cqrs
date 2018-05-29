@@ -1,0 +1,61 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: mesosphere/aws-cli
+        environment:
+          ECR_REPOSITORY_NAME: cqrs
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Check AWS cli is installed
+          working_directory: /
+          command: aws --version
+      - run:
+          name: Build and push docker image to an ECR (Docker images repository)
+          working_directory: webservice/
+          command: |
+            ##### Ensure an ECR exists and retrieve its description
+            if [ `aws ecr describe-repositories --region us-east-1 --repository-names $ECR_REPOSITORY_NAME | grep "$ECR_REPOSITORY_NAME" | wc -l` == 0 ]; then
+              echo "Creating ECR repository $ECR_REPOSITORY_NAME"
+              aws ecr create-repository --repository-name $ECR_REPOSITORY_NAME --region us-east-1 > repoDescription.txt
+            else
+              echo "ECR Repository $ECR_REPOSITORY_NAME already exists"
+              aws ecr describe-repositories --region us-east-1 --repository-names $ECR_REPOSITORY_NAME > repoDescription.txt
+            fi
+            ##### Store ECR url for further steps
+            ECR_REPOSITORY_URL=`cat repoDescription.txt | grep repositoryUri | awk '{print $2}' | tr -d '"'`
+            sed -i "s~\"image\":.*~\"image\": \"$ECR_REPOSITORY_URL:BN_$CIRCLE_BUILD_NUM\",~" ../infrastructure/fargate/task_definition.json
+            ##### Build the image
+            apk --update add bash iptables ca-certificates e2fsprogs docker
+            docker build -t $ECR_REPOSITORY_NAME .
+            ##### Push the image to ECR
+            eval $(aws ecr get-login --region us-east-1)
+            docker tag $ECR_REPOSITORY_NAME:latest $ECR_REPOSITORY_URL:latest
+            docker push $ECR_REPOSITORY_URL:latest
+            docker tag $ECR_REPOSITORY_NAME:latest $ECR_REPOSITORY_URL:BN_$CIRCLE_BUILD_NUM
+            docker push $ECR_REPOSITORY_URL:BN_$CIRCLE_BUILD_NUM
+            docker tag $ECR_REPOSITORY_NAME:latest $ECR_REPOSITORY_URL:SHA1_$CIRCLE_SHA1
+            docker push $ECR_REPOSITORY_URL:SHA1_$CIRCLE_SHA1
+
+      - run:
+          name: Install Terraform
+          working_directory: /
+          command: |
+            apk update && apk add ca-certificates && update-ca-certificates && apk add openssl
+            wget https://releases.hashicorp.com/terraform/0.11.7/terraform_0.11.7_linux_amd64.zip
+            apk add unzip
+            unzip terraform_0.11.7_linux_amd64.zip
+            mv terraform /usr/local/bin/
+            terraform --version
+      - run:
+          name: Install git (required for Terraform modules retrieval)
+          working_directory: /
+          command: apk add git
+      - run:
+          name: Apply terraform changes
+          working_directory: infrastructure/
+          command: |
+            terraform init
+            terraform apply -auto-approve
