@@ -34,7 +34,7 @@ resource "aws_ecs_service" "webservice" {
   load_balancer {
     target_group_arn = "${aws_alb_target_group.app.id}"
     container_name   = "HelloWorld"
-    container_port   = "${local.web_port}"
+    container_port   = "${local.app_port}"
   }
 
   depends_on = [
@@ -70,7 +70,7 @@ resource "aws_alb" "main" {
 # Redirect all traffic from the ALB to the target group
 resource "aws_alb_listener" "front_end" {
   load_balancer_arn = "${aws_alb.main.id}"
-  port              = "${local.app_port}"
+  port              = "${local.web_port}"
   protocol          = "HTTP"
 
   default_action {
