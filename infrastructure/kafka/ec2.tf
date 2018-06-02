@@ -14,11 +14,12 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
-resource "aws_instance" "web" {
+resource "aws_instance" "kafka" {
   ami           = "${data.aws_ami.ubuntu.id}"
   instance_type = "t2.medium"
 
   subnet_id = "${var.aws_subnet}"
+  vpc_security_group_ids = ["${aws_security_group.kafka.id}"]
   key_name = "iMac"
 
   tags {
@@ -26,7 +27,7 @@ resource "aws_instance" "web" {
   }
 }
 
-resource "aws_security_group" "lb" {
+resource "aws_security_group" "kafka" {
   name        = "kafka"
   description = "Controls access to Kafka"
   vpc_id      = "${var.aws_vpc}"
