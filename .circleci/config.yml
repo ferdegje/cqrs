@@ -59,3 +59,30 @@ jobs:
           command: |
             terraform init
             terraform apply -auto-approve
+  destroy:
+    docker:
+      - image: mesosphere/aws-cli
+        environment:
+          ECR_REPOSITORY_NAME: cqrs
+    steps:
+      - checkout
+      - run:
+          name: Apply terraform changes
+          working_directory: infrastructure/
+          command: |
+            terraform init
+            terraform destroy
+
+workflows:
+   version: 2
+   nightly:
+     triggers:
+       - schedule:
+           cron: "0 0 * * *"
+           filters:
+             branches:
+               only:
+                 - master
+                 - dev
+     jobs:
+       - destroy
