@@ -67,11 +67,21 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install Terraform
+          working_directory: /
+          command: |
+            apk update && apk add ca-certificates && update-ca-certificates && apk add openssl
+            wget https://releases.hashicorp.com/terraform/0.11.7/terraform_0.11.7_linux_amd64.zip
+            apk add unzip
+            unzip terraform_0.11.7_linux_amd64.zip
+            mv terraform /usr/local/bin/
+            terraform --version
+      - run:
           name: Apply terraform changes
           working_directory: infrastructure/
           command: |
             terraform init
-            terraform destroy
+            terraform destroy -auto-approve
 
 workflows:
    version: 2
