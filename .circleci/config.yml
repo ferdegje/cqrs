@@ -67,6 +67,10 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install git (required for Terraform modules retrieval)
+          working_directory: /
+          command: apk add git
+      - run:
           name: Apply terraform changes
           working_directory: infrastructure/
           command: |
